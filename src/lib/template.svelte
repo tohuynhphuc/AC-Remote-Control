@@ -7,12 +7,14 @@
 		name = "",
 		version = "",
 		href = "",
-		shallow = false
+		shallow = false,
+		reload = false
 	}: {
 		name?: string
 		version?: string
 		href?: string
 		shallow?: boolean
+		reload?: boolean
 	} = $props()
 
 	let lts = $state.raw(
@@ -29,6 +31,8 @@
 	let index = $state(-1)
 
 	$effect(() => untrack(() => theme_change(false)))
+
+	setInterval(change_lts, 60000)
 
 	function change_lts() {
 		index += 1
@@ -57,7 +61,7 @@
 
 <div class="m-1 flex flex-col items-center justify-center gap-1">
 	<div class="flex w-full items-center justify-between">
-		<Back {shallow} {href}></Back>
+		<Back {shallow} {href} {reload}></Back>
 		<button class="flex flex-col items-center" onclick={change_lts}>
 			<span class="text-2xl font-bold text-primary">Link</span>
 			<div class="flex flex-row items-center justify-center {index === -1 ? '' : 'gap-1'}">

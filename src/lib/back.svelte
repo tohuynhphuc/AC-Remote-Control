@@ -1,12 +1,14 @@
 <script lang="ts">
 	const {
-		shallow = false,
 		href = "",
-		style = ""
+		style = "",
+		shallow = false,
+		reload = false
 	}: {
-		shallow?: boolean
 		href?: string
 		style?: string
+		shallow?: boolean
+		reload?: boolean
 	} = $props()
 </script>
 
@@ -15,7 +17,7 @@
 		{@render chevron_left()}
 	</button>
 {:else if href}
-	<a {href} class="link link-primary size-12 {style}">
+	<a {href} class="link link-primary size-12 {style}" data-sveltekit-reload={reload}>
 		{@render chevron_left()}
 	</a>
 {:else}
