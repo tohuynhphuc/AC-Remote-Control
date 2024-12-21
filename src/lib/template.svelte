@@ -84,3 +84,9 @@
 	{#if name}<div class="text-2xl font-bold">{name}</div>{/if}
 	{#if version}<div>{version}</div>{/if}
 </div>
+
+<img
+	class="fixed inset-0 -z-50 h-full w-full object-cover object-center opacity-5"
+	src="/bg.jpg"
+	alt=""
+/>
