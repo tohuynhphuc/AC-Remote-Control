@@ -1,15 +1,15 @@
 <script lang="ts">
 	const {
-		href = "",
-		style = "",
+		href = '',
+		style = '',
 		shallow = false,
 		reload = false
 	}: {
-		href?: string
-		style?: string
-		shallow?: boolean
-		reload?: boolean
-	} = $props()
+		href?: string;
+		style?: string;
+		shallow?: boolean;
+		reload?: boolean;
+	} = $props();
 </script>
 
 {#if shallow}
