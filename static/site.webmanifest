@@ -1,6 +1,6 @@
 {
-	"name": "",
-	"short_name": "",
+	"name": "Link",
+	"short_name": "Link",
 	"icons": [
 		{
 			"src": "/web-app-manifest-192x192.png",
@@ -15,7 +15,7 @@
 			"purpose": "maskable"
 		}
 	],
-	"theme_color": "#ffffff",
+	"theme_color": "#37aad9",
 	"background_color": "#1d232a",
 	"display": "standalone"
 }

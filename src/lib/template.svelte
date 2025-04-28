@@ -69,7 +69,7 @@
 				<span class="text-secondary text-xs">20050703</span>
 			</div>
 		</button>
-		<img class="size-12" src="/favicon-48x48.png" alt="" />
+		<img class="size-12" src="/favicon-96x96.png" alt="" />
 	</div>
 
 	<div class="flex flex-row items-center justify-center gap-2">
