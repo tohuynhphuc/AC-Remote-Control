@@ -7,7 +7,7 @@
 
 	$effect(() => {
 		// wss://smartac.20050703.xyz/ws
-		ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws);`);
+		ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`);
 	});
 </script>
 
