@@ -3,6 +3,11 @@
 	let hour = $state<number>(0);
 	let minute = $state<number>(0);
 	let use_timer = $state<boolean>(false);
+	let ws: WebSocket;
+
+	$effect(() => {
+		ws = new WebSocket('...');
+	});
 </script>
 
 <select bind:value={ac_state} class="select select-primary">
@@ -30,13 +35,14 @@
 <button
 	class="btn btn-primary mt-4"
 	onclick={async () => {
-		fetch('', {
-			method: 'PUT',
-			body: JSON.stringify(ac_state),
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		});
+		ws.send(ac_state);
+		// fetch('', {
+		// 	method: 'PUT',
+		// 	body: JSON.stringify(ac_state),
+		// 	headers: {
+		// 		'Content-Type': 'application/json'
+		// 	}
+		// });
 	}}
 >
 	Send Command
