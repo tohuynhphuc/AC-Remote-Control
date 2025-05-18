@@ -1,50 +1,51 @@
 <script lang="ts">
-	let ac_state = $state<string>('default');
-	let hour = $state<number>(0);
-	let minute = $state<number>(0);
-	let use_timer = $state<boolean>(false);
+	import { enhance } from '$app/forms';
+
+	let ac_state = $state('default');
+	// let hour = $state(0);
+	// let minute = $state(0);
+	// let use_timer = $state(false);
+
 	let ws: WebSocket;
 
 	$effect(() => {
-		// wss://smartac.20050703.xyz/ws
-		ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`);
+		ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws`);
 	});
 </script>
 
-<select bind:value={ac_state} class="select select-primary">
-	<option value="default">Default: 27C, Fan: Auto, Direction: Auto</option>
-	<option value="quick_cooling">Quick Cooling: 25C, Fan: Strong, Direction: Auto</option>
-	<option value="low_power">Low Power: 28C, Fan: Weak, Direction: Top</option>
-	<option value="off">Off</option>
-</select>
+<div class="flex flex-col items-center gap-4">
+	<select bind:value={ac_state} class="select select-primary">
+		<option value="default">Default: 27C, Fan: Auto, Direction: Auto</option>
+		<option value="quick_cooling">Quick Cooling: 25C, Fan: Strong, Direction: Auto</option>
+		<option value="low_power">Low Power: 28C, Fan: Weak, Direction: Top</option>
+		<option value="off">Off</option>
+	</select>
 
-<div class="mt-2 flex items-center gap-2">
-	<input type="checkbox" bind:checked={use_timer} class="toggle toggle-primary" />
-	<span>Use Timer</span>
+	<!-- <div class="mt-2 flex items-center gap-2">
+		<input type="checkbox" bind:checked={use_timer} class="toggle toggle-primary" />
+		<span>Use Timer</span>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<p>Hour:</p>
+		<input bind:value={hour} class="input input-bordered w-full" type="number" min="0" />
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<p>Minute:</p>
+		<input bind:value={minute} class="input input-bordered w-full" type="number" min="0" max="59" />
+	</div> -->
+
+	<button
+		class="btn btn-primary"
+		onclick={async () => {
+			ws.send(ac_state);
+		}}
+	>
+		Send Command
+	</button>
+
+	<form class="mt-4" method="post" use:enhance>
+		<input class="btn btn-error" type="submit" value="Log out" />
+	</form>
 </div>
-
-<div class="flex flex-col gap-2">
-	<p>Hour:</p>
-	<input bind:value={hour} class="input input-bordered w-full" type="number" min="0" />
-</div>
-
-<div class="flex flex-col gap-2">
-	<p>Minute:</p>
-	<input bind:value={minute} class="input input-bordered w-full" type="number" min="0" max="59" />
-</div>
-
-<button
-	class="btn btn-primary mt-4"
-	onclick={async () => {
-		ws.send(ac_state);
-		// fetch('', {
-		// 	method: 'PUT',
-		// 	body: JSON.stringify(ac_state),
-		// 	headers: {
-		// 		'Content-Type': 'application/json'
-		// 	}
-		// });
-	}}
->
-	Send Command
-</button>

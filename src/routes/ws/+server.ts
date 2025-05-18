@@ -12,21 +12,22 @@ export const socket: Socket = {
 		event.context.username = user.username;
 	},
 	open(peer) {
-		peer.websocket.binaryType = 'arraybuffer';
+		console.log('open', { username: peer.context.username });
 		if (peer.context.username === 'arduino') peer.subscribe('arduino');
 	},
 	message(peer, message) {
 		try {
-			publish('arduino', message.data);
+			const data = (message.data as Buffer).toString();
+			console.log('message', { username: peer.context.username, message });
+			publish('arduino', data);
 		} catch (e) {
-			peer.send(e);
 			console.log(e);
 		}
 	},
 	close(peer, details) {
-		console.log('close', peer.context.username, details);
+		console.log('close', { username: peer.context.username, details });
 	},
 	error(peer, error) {
-		console.error('error', error);
+		console.error('error', { username: peer.context.username, error });
 	}
 };

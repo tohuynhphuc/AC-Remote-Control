@@ -69,10 +69,6 @@ export const actions: Actions = {
 
 		setSessionTokenCookie(event, token, session.expires_at);
 
-		if (username === arduino) {
-			return redirect(302, '/ws');
-		} else {
-			return redirect(302, '/');
-		}
+		if (username !== arduino) redirect(302, '/');
 	}
 };
