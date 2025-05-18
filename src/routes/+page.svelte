@@ -16,6 +16,9 @@
 <div class="flex flex-col items-center gap-4">
 	<select bind:value={ac_state} class="select select-primary">
 		<option value="default">Default: 27C, Fan: Auto, Direction: Auto</option>
+		<option value="default_top">Default Top: 27C, Fan: Auto, Direction: Top</option>
+		<option value="default_low">Default Low: 27C, Fan: Auto, Direction: Low</option>
+		<option value="default_down">Default Down: 27C, Fan: Auto, Direction: Bottom</option>
 		<option value="quick_cooling">Quick Cooling: 25C, Fan: Strong, Direction: Auto</option>
 		<option value="low_power">Low Power: 28C, Fan: Weak, Direction: Top</option>
 		<option value="off">Off</option>
