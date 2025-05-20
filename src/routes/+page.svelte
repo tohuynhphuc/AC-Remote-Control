@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 
+	let status = $state<'connecting' | 'connected' | 'disconnected'>('connecting');
 	let ac_state = $state('default');
 	// let hour = $state(0);
 	// let minute = $state(0);
@@ -10,11 +11,33 @@
 
 	$effect(() => {
 		ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws`);
+
+		ws.addEventListener('open', () => {
+			status = 'connected';
+		});
+
+		ws.addEventListener('close', () => {
+			status = 'disconnected';
+		});
+
+		ws.addEventListener('error', (e) => {
+			console.log(e);
+		});
 	});
 </script>
 
 <div class="flex flex-col items-center gap-4">
-	<select bind:value={ac_state} class="select select-primary">
+	{#if status === 'connecting'}
+		<div class="text-warning">Connecting...</div>
+	{:else if status === 'connected'}
+		<div class="text-success">Connected!</div>
+	{:else if status === 'disconnected'}
+		<div class="text-error">
+			Disconnected due to inactivity. Please reload the page to reconnect.
+		</div>
+	{/if}
+
+	<select disabled={status !== 'connected'} bind:value={ac_state} class="select select-primary">
 		<option value="default">Default: 27C, Fan: Auto, Direction: Auto</option>
 		<option value="default_top">Default Top: 27C, Fan: Auto, Direction: Top</option>
 		<option value="default_low">Default Low: 27C, Fan: Auto, Direction: Low</option>
@@ -40,6 +63,7 @@
 	</div> -->
 
 	<button
+		disabled={status !== 'connected'}
 		class="btn btn-primary"
 		onclick={async () => {
 			ws.send(ac_state);
