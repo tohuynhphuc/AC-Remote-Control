@@ -3,6 +3,7 @@
 	import { untrack } from 'svelte';
 
 	let status = $state<'connecting' | 'connected' | 'disconnected'>('connecting');
+	let arduino_connected = $state(false);
 	let ac_state = $state('default');
 	// let hour = $state(0);
 	// let minute = $state(0);
@@ -20,6 +21,17 @@
 			status = 'connected';
 		});
 
+		ws.addEventListener('message', (e) => {
+			switch (e.data) {
+				case 'arduino connected':
+					arduino_connected = true;
+					break;
+				case 'arduino disconnected':
+					arduino_connected = false;
+					break;
+			}
+		});
+
 		ws.addEventListener('close', () => {
 			status = 'disconnected';
 		});
@@ -34,15 +46,26 @@
 	{#if status === 'connecting'}
 		<div class="text-warning">Connecting...</div>
 	{:else if status === 'connected'}
-		<div class="text-success">Connected!</div>
+		<div class="text-success">You are connected!</div>
 	{:else if status === 'disconnected'}
 		<div class="text-error">
-			Disconnected due to inactivity. Please reload the page or click the button below to reconnect.
+			You have been disconnected due to inactivity. Please reload the page or click the button below
+			to reconnect.
 		</div>
 		<button class="btn btn-primary" onclick={connect}>Reconnect</button>
 	{/if}
 
-	<select disabled={status !== 'connected'} bind:value={ac_state} class="select select-primary">
+	{#if arduino_connected}
+		<div class="text-success">Arduino is connected!</div>
+	{:else}
+		<div class="text-error">Arduino is disconnected!</div>
+	{/if}
+
+	<select
+		disabled={status !== 'connected' || !arduino_connected}
+		bind:value={ac_state}
+		class="select select-primary"
+	>
 		<option value="default">Default: 27C, Fan: Auto, Direction: Auto</option>
 		<option value="default_top">Default Top: 27C, Fan: Auto, Direction: Top</option>
 		<option value="default_low">Default Low: 27C, Fan: Auto, Direction: Low</option>
@@ -68,7 +91,7 @@
 	</div> -->
 
 	<button
-		disabled={status !== 'connected'}
+		disabled={status !== 'connected' || !arduino_connected}
 		class="btn btn-primary"
 		onclick={async () => {
 			ws.send(ac_state);
