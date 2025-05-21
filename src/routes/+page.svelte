@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { untrack } from 'svelte';
 
 	let status = $state<'connecting' | 'connected' | 'disconnected'>('connecting');
 	let ac_state = $state('default');
@@ -9,7 +10,10 @@
 
 	let ws: WebSocket;
 
-	$effect(() => {
+	// * Auto connect
+	$effect(() => untrack(connect));
+
+	function connect() {
 		ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws`);
 
 		ws.addEventListener('open', () => {
@@ -23,7 +27,7 @@
 		ws.addEventListener('error', (e) => {
 			console.log(e);
 		});
-	});
+	}
 </script>
 
 <div class="flex flex-col items-center gap-4">
@@ -33,8 +37,9 @@
 		<div class="text-success">Connected!</div>
 	{:else if status === 'disconnected'}
 		<div class="text-error">
-			Disconnected due to inactivity. Please reload the page to reconnect.
+			Disconnected due to inactivity. Please reload the page or click the button below to reconnect.
 		</div>
+		<button class="btn btn-primary" onclick={connect}>Reconnect</button>
 	{/if}
 
 	<select disabled={status !== 'connected'} bind:value={ac_state} class="select select-primary">
