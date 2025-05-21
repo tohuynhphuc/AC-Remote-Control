@@ -24,15 +24,7 @@ export const socket: Socket = {
 	},
 	message(peer, message) {
 		try {
-			let data;
-
-			if (Buffer.isBuffer(message.data)) {
-				data = message.data.toString();
-			}
-
-			if (typeof data === 'string') {
-				data = message.data;
-			}
+			const data = message.data?.toString();
 
 			console.log(new Date().toISOString(), 'message', {
 				username: peer.context.username,
@@ -65,6 +57,6 @@ function check_arudino_connected() {
 		}
 	}
 
-	if (arduino_connected) publish('phuc', 'arduino reconnected');
+	if (arduino_connected) publish('phuc', 'arduino connected');
 	else publish('phuc', 'arduino disconnected');
 }
