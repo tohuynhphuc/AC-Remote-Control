@@ -1,4 +1,4 @@
-import { publish } from '$app/server';
+import { getPeers, publish } from '$app/server';
 import { validateSessionToken } from '$lib/server/session';
 import { error } from '@sveltejs/kit';
 import type { Socket } from './$types';
@@ -12,22 +12,51 @@ export const socket: Socket = {
 		event.context.username = user.username;
 	},
 	open(peer) {
-		console.log('open', { username: peer.context.username });
-		if (peer.context.username === 'arduino') peer.subscribe('arduino');
+		console.log(new Date().toISOString(), 'open', { username: peer.context.username });
+		if (peer.context.username === 'arduino') {
+			peer.subscribe('arduino');
+			publish('phuc', 'arduino connected');
+		} else {
+			peer.subscribe('phuc');
+
+			check_arudino_connected();
+		}
 	},
 	message(peer, message) {
 		try {
-			const data = (message.data as Buffer).toString();
-			console.log('message', { username: peer.context.username, message });
-			publish('arduino', data);
+			const data = message.data?.toString();
+
+			console.log(new Date().toISOString(), 'message', {
+				username: peer.context.username,
+				data,
+				raw: message.data
+			});
+
+			if (data && peer.context.username !== 'arduino') {
+				publish('arduino', data);
+			}
 		} catch (e) {
 			console.log(e);
 		}
 	},
 	close(peer, details) {
-		console.log('close', { username: peer.context.username, details });
+		console.log(new Date().toISOString(), 'close', { username: peer.context.username, details });
+
+		check_arudino_connected();
 	},
 	error(peer, error) {
-		console.error('error', { username: peer.context.username, error });
+		console.error(new Date().toISOString(), 'error', { username: peer.context.username, error });
 	}
 };
+
+function check_arudino_connected() {
+	let arduino_connected = false;
+	for (const peer of getPeers()) {
+		if (peer.context.username === 'arduino' || peer.topics.has('arduino')) {
+			arduino_connected = true;
+		}
+	}
+
+	if (arduino_connected) publish('phuc', 'arduino connected');
+	else publish('phuc', 'arduino disconnected');
+}

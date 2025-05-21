@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { untrack } from 'svelte';
 
+	let status = $state<'connecting' | 'connected' | 'disconnected'>('connecting');
+	let arduino_connected = $state(false);
 	let ac_state = $state('default');
 	// let hour = $state(0);
 	// let minute = $state(0);
@@ -17,12 +20,56 @@
 
 	let ws: WebSocket;
 
-	$effect(() => {
+	// * Auto connect
+	$effect(() => untrack(connect));
+
+	function connect() {
 		ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws`);
-	});
+
+		ws.addEventListener('open', () => {
+			status = 'connected';
+		});
+
+		ws.addEventListener('message', (e) => {
+			switch (e.data) {
+				case 'arduino connected':
+					arduino_connected = true;
+					break;
+				case 'arduino disconnected':
+					arduino_connected = false;
+					break;
+			}
+		});
+
+		ws.addEventListener('close', () => {
+			status = 'disconnected';
+		});
+
+		ws.addEventListener('error', (e) => {
+			console.log(e);
+		});
+	}
 </script>
 
 <div class="flex flex-col items-center gap-4">
+	{#if status === 'connecting'}
+		<div class="text-warning">Connecting...</div>
+	{:else if status === 'connected'}
+		<div class="text-success">You are connected!</div>
+	{:else if status === 'disconnected'}
+		<div class="text-error">
+			You have been disconnected due to inactivity. Please reload the page or click the button below
+			to reconnect.
+		</div>
+		<button class="btn btn-primary" onclick={connect}>Reconnect</button>
+	{/if}
+
+	{#if arduino_connected}
+		<div class="text-success">Arduino is connected!</div>
+	{:else}
+		<div class="text-error">Arduino is disconnected!</div>
+	{/if}
+
 	<div class="grid grid-cols-[1fr_auto_1fr] gap-4">
 		<span class="ml-2">Preset Mode</span>
 		<input type="checkbox" bind:checked={is_manual} class="toggle toggle-primary" />
