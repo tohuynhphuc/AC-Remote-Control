@@ -12,22 +12,22 @@ export const socket: Socket = {
 		event.context.username = user.username;
 	},
 	open(peer) {
-		console.log(Date.now(), 'open', { username: peer.context.username });
+		console.log(new Date().toISOString(), 'open', { username: peer.context.username });
 		if (peer.context.username === 'arduino') peer.subscribe('arduino');
 	},
 	message(peer, message) {
 		try {
 			const data = (message.data as Buffer).toString();
-			console.log(Date.now(), 'message', { username: peer.context.username, data });
+			console.log(new Date().toISOString(), 'message', { username: peer.context.username, data });
 			publish('arduino', data);
 		} catch (e) {
 			console.log(e);
 		}
 	},
 	close(peer, details) {
-		console.log(Date.now(), 'close', { username: peer.context.username, details });
+		console.log(new Date().toISOString(), 'close', { username: peer.context.username, details });
 	},
 	error(peer, error) {
-		console.error(Date.now(), 'error', { username: peer.context.username, error });
+		console.error(new Date().toISOString(), 'error', { username: peer.context.username, error });
 	}
 };
