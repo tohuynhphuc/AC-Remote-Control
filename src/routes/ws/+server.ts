@@ -1,9 +1,7 @@
-import { publish } from '$app/server';
+import { getPeers, publish } from '$app/server';
 import { validateSessionToken } from '$lib/server/session';
 import { error } from '@sveltejs/kit';
 import type { Socket } from './$types';
-
-let ardunino_conencted = false;
 
 export const socket: Socket = {
 	upgrade(event) {
@@ -17,12 +15,11 @@ export const socket: Socket = {
 		console.log(new Date().toISOString(), 'open', { username: peer.context.username });
 		if (peer.context.username === 'arduino') {
 			peer.subscribe('arduino');
-			ardunino_conencted = true;
 			publish('phuc', 'arduino connected');
 		} else {
 			peer.subscribe('phuc');
-			if (ardunino_conencted) publish('phuc', 'arduino reconnected');
-			else publish('phuc', 'arduino disconnected');
+
+			check_arudino_connected();
 		}
 	},
 	message(peer, message) {
@@ -52,12 +49,22 @@ export const socket: Socket = {
 	},
 	close(peer, details) {
 		console.log(new Date().toISOString(), 'close', { username: peer.context.username, details });
-		if (peer.context.username === 'arduino') {
-			ardunino_conencted = false;
-			publish('phuc', 'arduino disconnected');
-		}
+
+		check_arudino_connected();
 	},
 	error(peer, error) {
 		console.error(new Date().toISOString(), 'error', { username: peer.context.username, error });
 	}
 };
+
+function check_arudino_connected() {
+	let arduino_connected = false;
+	for (const peer of getPeers()) {
+		if (peer.context.username === 'arduino' || peer.topics.has('arduino')) {
+			arduino_connected = true;
+		}
+	}
+
+	if (arduino_connected) publish('phuc', 'arduino reconnected');
+	else publish('phuc', 'arduino disconnected');
+}

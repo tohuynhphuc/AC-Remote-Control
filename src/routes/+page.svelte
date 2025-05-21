@@ -61,11 +61,7 @@
 		<div class="text-error">Arduino is disconnected!</div>
 	{/if}
 
-	<select
-		disabled={status !== 'connected' || !arduino_connected}
-		bind:value={ac_state}
-		class="select select-primary"
-	>
+	<select bind:value={ac_state} class="select select-primary">
 		<option value="default">Default: 27C, Fan: Auto, Direction: Auto</option>
 		<option value="default_top">Default Top: 27C, Fan: Auto, Direction: Top</option>
 		<option value="default_low">Default Low: 27C, Fan: Auto, Direction: Low</option>
@@ -91,7 +87,6 @@
 	</div> -->
 
 	<button
-		disabled={status !== 'connected' || !arduino_connected}
 		class="btn btn-primary"
 		onclick={async () => {
 			ws.send(ac_state);
