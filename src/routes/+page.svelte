@@ -5,18 +5,21 @@
 	let status = $state<'connecting' | 'connected' | 'disconnected'>('connecting');
 	let arduino_connected = $state(false);
 	let ac_state = $state('default');
-	// let hour = $state(0);
-	// let minute = $state(0);
-	// let use_timer = $state(false);
+	let hour = $state(0);
+	let minute = $state(0);
+	let use_timer = $state(false);
 
 	let is_manual = $state(false);
+
 	let temperature = $state(27);
 
-	let directions = ['bottom', 'low', 'mid', 'high', 'auto'];
-	let direction_index = $state(4);
+	let directions = ['bottom', 'low', 'mid', 'high', 'top', 'auto'];
+	let direction_index = $state(5);
 
-	let speeds = ['low', 'average', 'high', 'auto'];
-	let speed_index = $state(4);
+	let speeds = ['low', 'mid', 'high', 'auto'];
+	let speed_index = $state(3);
+
+	let command = $state('default');
 
 	let ws: WebSocket;
 
@@ -77,21 +80,18 @@
 	</div>
 
 	{#if !is_manual}
-		Presets:
+		<div class="text-2xl">Preset</div>
 		<select bind:value={ac_state} class="select select-primary">
 			<option value="default">Default: 27C, Fan: Auto, Direction: Auto</option>
-			<!-- <option value="default_top">Default Top: 27C, Fan: Auto, Direction: Top</option>
-			<option value="default_low">Default Low: 27C, Fan: Auto, Direction: Low</option>
-			<option value="default_down">Default Down: 27C, Fan: Auto, Direction: Bottom</option> -->
 			<option value="quick_cooling">Quick Cooling: 25C, Fan: Strong, Direction: Auto</option>
 			<option value="low_power">Low Power: 28C, Fan: Weak, Direction: Top</option>
 			<option value="off">Off</option>
 		</select>
 	{:else}
-		Manual:
-		<div class="w-full max-w-xs">
-			<div>
-				Temperature:
+		<div class="text-2xl">Manual</div>
+		<div class="grid w-full max-w-xs grid-rows-3 gap-5">
+			<div class="">
+				Temperature
 				<input
 					type="range"
 					bind:value={temperature}
@@ -99,7 +99,7 @@
 					max="30"
 					class="range range-primary"
 				/>
-				<div class="mt-2 flex justify-between px-2.5 text-xs">
+				<div class="mt-2 mr-1.5 ml-1.5 flex justify-between px-2.5 text-xs">
 					<span>|</span>
 					<span>|</span>
 					<span>|</span>
@@ -107,7 +107,7 @@
 					<span>|</span>
 					<span>|</span>
 				</div>
-				<div class="mt-2 flex justify-between px-2.5 text-xs">
+				<div class="mt-2 flex justify-between px-2.5 text-sm">
 					<span>25</span>
 					<span>26</span>
 					<span>27</span>
@@ -116,9 +116,9 @@
 					<span>30</span>
 				</div>
 			</div>
-			<div class="flex flex-col">
-				Fan Direction:
-				<div class="grid grid-cols-5 justify-between">
+			<div class="flex flex-col gap-5">
+				Fan Direction
+				<div class="grid grid-cols-6 justify-between">
 					{#each directions as dir, i (i)}
 						<label class="flex flex-col items-center gap-2">
 							<input
@@ -134,14 +134,14 @@
 				</div>
 			</div>
 
-			<div class="flex flex-col">
-				Fan Speed:
+			<div class="flex flex-col gap-5">
+				Fan Speed
 				<div class="grid grid-cols-4 justify-between">
 					{#each speeds as spd, i (i)}
 						<label class="flex flex-col items-center gap-2">
 							<input
 								type="radio"
-								name="radio_dir"
+								name="radio_spd"
 								class="radio radio-primary"
 								bind:group={speed_index}
 								value={i}
@@ -154,31 +154,59 @@
 		</div>
 	{/if}
 
-	<!-- <div class="mt-2 flex items-center gap-2">
-		<input type="checkbox" bind:checked={use_timer} class="toggle toggle-primary" />
-		<span>Use Timer</span>
-	</div>
+	<div class="mt-2 flex w-full max-w-xs flex-col items-center gap-2">
+		<div class="mb-2 grid grid-cols-2 items-center gap-5">
+			<div>Timer</div>
+			<input type="checkbox" bind:checked={use_timer} class="toggle toggle-primary" />
+		</div>
+		<div class="mr-3 ml-3 grid w-full grid-cols-2 gap-5">
+			<div class="flex flex-col gap-2">
+				<p>Hour</p>
+				<input
+					bind:value={hour}
+					class="input input-primary input-bordered w-full"
+					type="number"
+					min="0"
+				/>
+			</div>
 
-	<div class="flex flex-col gap-2">
-		<p>Hour:</p>
-		<input bind:value={hour} class="input input-bordered w-full" type="number" min="0" />
+			<div class="flex flex-col gap-2">
+				<p>Minute</p>
+				<input
+					bind:value={minute}
+					class="input input-primary input-bordered w-full"
+					type="number"
+					min="0"
+					max="59"
+				/>
+			</div>
+		</div>
 	</div>
-
-	<div class="flex flex-col gap-2">
-		<p>Minute:</p>
-		<input bind:value={minute} class="input input-bordered w-full" type="number" min="0" max="59" />
-	</div> -->
 
 	<button
-		class="btn btn-primary"
+		class="btn btn-primary btn-soft"
 		onclick={async () => {
-			ws.send(ac_state);
+			if (!is_manual) {
+				command = ac_state;
+			} else {
+				command =
+					'_' +
+					temperature.toString() +
+					'_' +
+					directions[direction_index] +
+					'_' +
+					speeds[speed_index];
+			}
+			if (use_timer) {
+				command = command + '_' + (hour * 60 + minute).toString();
+			}
+			ws.send(command);
 		}}
 	>
 		Send Command
 	</button>
 
-	<form class="mt-4" method="post" use:enhance>
-		<input class="btn btn-error" type="submit" value="Log out" />
+	<form class="mt-1" method="post" use:enhance>
+		<input class="btn btn-error btn-soft" type="submit" value="Log out" />
 	</form>
 </div>

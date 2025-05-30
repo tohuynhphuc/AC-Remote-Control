@@ -7,10 +7,11 @@
 @plugin "daisyui/theme" {
 	name: 'dark';
 	prefersdark: true;
-	--color-primary: #37aad9;
-	--color-secondary: #eea231;
+	--color-primary: #fa58b6;
+	--color-secondary: #7a0bc0;
 	--color-accent: #52fd64;
-	--color-base-content: #fff;
+	--color-base-content: #ffffff;
+	--color-base-100: #1a1a40;
 }
 
 @plugin "daisyui/theme" {
