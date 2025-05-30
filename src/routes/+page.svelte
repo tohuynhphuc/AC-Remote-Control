@@ -13,10 +13,10 @@
 
 	let temperature = $state(27);
 
-	let directions = ['bottom', 'low', 'mid', 'high', 'top', 'auto'];
+	let directions = ['Bottom', 'Low', 'Mid', 'High', 'Top', 'Auto'];
 	let direction_index = $state(5);
 
-	let speeds = ['low', 'mid', 'high', 'auto'];
+	let speeds = ['Low', 'Mid', 'High', 'Auto'];
 	let speed_index = $state(3);
 
 	let command = $state('default');
@@ -53,6 +53,10 @@
 		});
 	}
 </script>
+
+<svelte:head>
+	<title>Smart AC</title>
+</svelte:head>
 
 <div class="flex flex-col items-center gap-4">
 	{#if status === 'connecting'}
