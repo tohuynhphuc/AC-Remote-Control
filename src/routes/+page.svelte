@@ -5,9 +5,6 @@
 	let status = $state<'connecting' | 'connected' | 'disconnected'>('connecting');
 	let arduino_connected = $state(false);
 	let ac_state = $state('default');
-	let hour = $state(0);
-	let minute = $state(0);
-	let use_timer = $state(false);
 
 	let is_manual = $state(false);
 
@@ -20,6 +17,14 @@
 	let speed_index = $state(3);
 
 	let command = $state('default');
+
+	let hour = $state(0);
+	let minute = $state(0);
+	let use_timer = $state(false);
+
+	let showToast = $state(false);
+	let toastTimeout: NodeJS.Timeout;
+	let sentCommand = $state();
 
 	let ws: WebSocket;
 
@@ -205,10 +210,24 @@
 				command = command + '_' + (hour * 60 + minute).toString();
 			}
 			ws.send(command);
+
+			sentCommand = command;
+			showToast = true;
+			clearTimeout(toastTimeout);
+			toastTimeout = setTimeout(() => {
+				showToast = false;
+			}, 2000);
 		}}
 	>
 		Send Command
 	</button>
+
+	{#if showToast}
+		<div class="alert alert-success fixed bottom-5 z-50 flex gap-2">
+			<div>Command sent:</div>
+			<code class="font-mono">{sentCommand}</code>
+		</div>
+	{/if}
 
 	<form class="mt-1" method="post" use:enhance>
 		<input class="btn btn-error btn-soft" type="submit" value="Log out" />
