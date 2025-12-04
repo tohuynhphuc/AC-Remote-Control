@@ -5,6 +5,6 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	server: { allowedHosts: ['smartac.20050703.xyz'] },
-	ssr: { noExternal: ['@node-rs/argon2'] },
-	build: { rollupOptions: { external: ['@node-rs/argon2'] } }
+	ssr: { noExternal: ['@node-rs/argon2', 'better-sqlite3'] },
+	build: { rollupOptions: { external: ['@node-rs/argon2', 'better-sqlite3'] } }
 });
